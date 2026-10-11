@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Intelligent Career Counselor</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Intelligent Career Counselor</h1>
+      <form id="careerForm">
+        <label>
+          Skills
+          <textarea id="skills" rows="3" placeholder="Python, SQL, product thinking, communication...">Python, communication, research</textarea>
+        </label>
+        <label>
+          Interests
+          <textarea id="interests" rows="3" placeholder="AI, design, analytics, systems...">AI, data, product strategy</textarea>
+        </label>
+        <label>
+          Career goals
+          <textarea id="goals" rows="3" placeholder="What do you want to achieve?">I want to build meaningful AI-enabled products and grow into a high-impact technical leader.</textarea>
+        </label>
+        <button type="submit">Get recommendation</button>
+      </form>
+
+      <section id="result" class="result hidden">
+        <h2 id="roleResult"></h2>
+        <p id="scoreResult"></p>
+        <ul id="roadmap"></ul>
+      </section>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+  </body>
+</html>
