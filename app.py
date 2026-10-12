@@ -30,42 +30,62 @@ def score_role(role, skills, interests, goals):
 
 def generate_llm_plan(skills, interests, goals):
     api_key = os.environ.get("OPENAI_API_KEY")
-    if not api_key:
+    provider = os.environ.get("LLM_PROVIDER", "ollama" if not api_key else "openai").lower()
+    if provider == "openai" and not api_key:
         return None
 
-    payload = {
-        "model": os.environ.get("OPENAI_MODEL", "gpt-4o-mini"),
-        "response_format": {"type": "json_object"},
-        "messages": [
-            {
-                "role": "system",
-                "content": (
-                    "You are a career exploration assistant. Return JSON with keys "
-                    "recommended_role (string), rationale (string), and roadmap "
-                    "(array of 3 practical steps). Treat this as exploratory guidance, "
-                    "not a guarantee or professional assessment."
-                ),
-            },
-            {
-                "role": "user",
-                "content": f"Skills: {skills}\nInterests: {interests}\nGoals: {goals}",
-            },
-        ],
-    }
+    messages = [
+        {
+            "role": "system",
+            "content": (
+                "You are a career exploration assistant. Return JSON with keys "
+                "recommended_role (string), rationale (string), and roadmap "
+                "(array of 3 practical steps). Treat this as exploratory guidance, "
+                "not a guarantee or professional assessment."
+            ),
+        },
+        {
+            "role": "user",
+            "content": f"Skills: {skills}\nInterests: {interests}\nGoals: {goals}",
+        },
+    ]
+
+    if provider == "ollama":
+        payload = {
+            "model": os.environ.get("OLLAMA_MODEL", "qwen2.5:3b"),
+            "messages": messages,
+            "format": "json",
+            "stream": False,
+        }
+        endpoint = os.environ.get("OLLAMA_URL", "http://localhost:11434/api/chat")
+        headers = {"Content-Type": "application/json"}
+    else:
+        payload = {
+            "model": os.environ.get("OPENAI_MODEL", "gpt-4o-mini"),
+            "response_format": {"type": "json_object"},
+            "messages": messages,
+        }
+        endpoint = "https://api.openai.com/v1/chat/completions"
+        headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+
     req = Request(
-        "https://api.openai.com/v1/chat/completions",
+        endpoint,
         data=json.dumps(payload).encode("utf-8"),
-        headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+        headers=headers,
         method="POST",
     )
     try:
-        with urlopen(req, timeout=30) as response:
+        with urlopen(req, timeout=120 if provider == "ollama" else 30) as response:
             result = json.loads(response.read().decode("utf-8"))
-        plan = json.loads(result["choices"][0]["message"]["content"])
+        if provider == "ollama":
+            response_content = result["message"]["content"]
+        else:
+            response_content = result["choices"][0]["message"]["content"]
+        plan = json.loads(response_content)
         if not isinstance(plan.get("recommended_role"), str) or not isinstance(plan.get("roadmap"), list):
             return None
-        return plan
-    except (HTTPError, URLError, KeyError, IndexError, TypeError, json.JSONDecodeError):
+        return {**plan, "mode": provider}
+    except (HTTPError, URLError, KeyError, IndexError, TypeError, json.JSONDecodeError, TimeoutError):
         return None
 
 
@@ -83,7 +103,7 @@ def career_plan():
 
     llm_plan = generate_llm_plan(skills, interests, goals)
     if llm_plan:
-        return jsonify({**llm_plan, "mode": "llm"})
+        return jsonify(llm_plan)
 
     roles = [
         "AI Engineer",

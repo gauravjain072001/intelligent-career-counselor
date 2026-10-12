@@ -1,10 +1,11 @@
 # Intelligent Career Counselor
 
-A career exploration app with optional OpenAI-compatible LLM recommendations and a transparent keyword-based fallback when no API key is configured. Recommendations are exploratory, not professional assessments.
+A career exploration app with local Ollama recommendations, optional OpenAI API support, and a transparent keyword-based fallback. Recommendations are exploratory, not professional assessments.
 
 ## Features
 - Skill and goal assessment form
-- LLM-generated role rationale and roadmap when configured
+- Local LLM-generated role rationale and roadmap through Ollama
+- Optional OpenAI API recommendations
 - Rule-based fallback for local testing
 - Personalized roadmap suggestions
 
@@ -19,4 +20,10 @@ python app.py
 
 Open http://localhost:5002
 
-To enable LLM recommendations, copy `.env.example` to `.env`, add your API key, then start the app. Optionally change `OPENAI_MODEL` (defaults to `gpt-4o-mini`). The `.env` file is ignored by Git; never commit or share your API key.
+Install [Ollama](https://ollama.com/download/windows), then download the local model once:
+
+```powershell
+ollama pull qwen2.5:3b
+```
+
+Copy `.env.example` to `.env`, keep `LLM_PROVIDER=ollama`, and start the app. Ollama must be running locally. To use the optional paid OpenAI API instead, set `LLM_PROVIDER=openai` and add `OPENAI_API_KEY` in `.env`. The `.env` file is ignored by Git.
