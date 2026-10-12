@@ -4,7 +4,9 @@ from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 from flask import Flask, render_template, request, jsonify
+from dotenv import load_dotenv
 
+load_dotenv()
 app = Flask(__name__)
 
 

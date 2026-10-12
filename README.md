@@ -19,4 +19,4 @@ python app.py
 
 Open http://localhost:5002
 
-To enable LLM recommendations, set `OPENAI_API_KEY` before starting the app. Optionally set `OPENAI_MODEL` (defaults to `gpt-4o-mini`). Never commit API keys.
+To enable LLM recommendations, copy `.env.example` to `.env`, add your API key, then start the app. Optionally change `OPENAI_MODEL` (defaults to `gpt-4o-mini`). The `.env` file is ignored by Git; never commit or share your API key.
