@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Career Counselor Demo</title>
+  <style>
+    :root{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:#f0efe7;color:#1d2b29}*{box-sizing:border-box}body{margin:0;min-height:100vh;padding:30px 16px;background:linear-gradient(140deg,#e0eadf,#f0efe7 50%,#dce7ef)}main{max-width:900px;margin:0 auto}.header{padding:8px 4px 22px}.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-weight:700;color:#286d5d;font-size:12px}.header h1{font-size:30px;margin:6px 0}.header p{color:#4d605a}.layout{display:grid;grid-template-columns:1fr 1fr;gap:18px}.panel{background:#fff;border:1px solid #c9d5ce;border-radius:10px;padding:22px;box-shadow:0 14px 40px #21372d12}form{display:grid;gap:14px}label{display:grid;gap:6px;font-weight:650}textarea{resize:vertical;min-height:82px;border:1px solid #b5c5bd;border-radius:7px;padding:10px;font:inherit}button{border:0;border-radius:7px;padding:12px 16px;background:#236d5b;color:#fff;font:inherit;font-weight:700;cursor:pointer}.result h2{margin-top:0}.result p{line-height:1.5}.result li{margin:10px 0;line-height:1.45}.notice{font-size:12px;color:#52635d;margin-top:16px}@media(max-width:680px){.layout{grid-template-columns:1fr}.header h1{font-size:26px}}
+  </style>
+</head>
+<body>
+  <main>
+    <header class="header"><div class="eyebrow">Career exploration demo</div><h1>Find a direction for your next step</h1><p>Share your skills, interests, and goals to get a role suggestion and a practical starter roadmap.</p></header>
+    <div class="layout">
+      <section class="panel"><form id="form"><label>Skills<textarea id="skills" placeholder="Python, communication, research"></textarea></label><label>Interests<textarea id="interests" placeholder="AI, data, design, product"></textarea></label><label>Goals<textarea id="goals" placeholder="What would you like to work toward?"></textarea></label><button>Get recommendation</button></form></section>
+      <section class="panel result" id="result" aria-live="polite"><h2>Your recommendation will appear here</h2><p>Try entering a few skills and interests to begin.</p></section>
+    </div>
+    <p class="notice">This public demo uses a simple keyword-matching guide, not an AI assessment. See the <a href="https://github.com/gauravjain072001/intelligent-career-counselor">source repository</a> for the optional local LLM implementation.</p>
+  </main>
+  <script>
+    const plans={
+      'AI Engineer':['Strengthen Python and statistics fundamentals','Build small LLM or machine-learning projects','Learn model evaluation and deployment'],
+      'Product Manager':['Practice user research and product discovery','Create roadmaps and prioritize features','Learn experimentation and stakeholder communication'],
+      'Data Analyst':['Improve SQL and data cleaning workflows','Build dashboards and explain insights','Practice experimentation and decision frameworks'],
+      'Frontend Engineer':['Build with modern JavaScript and UI patterns','Practice responsive design and accessibility','Ship an interactive web project'],
+      'Backend Engineer':['Develop APIs, databases, and system-design skills','Build a service with authentication','Learn deployment and observability']
+    };
+    document.getElementById('form').addEventListener('submit',event=>{event.preventDefault();const text=['skills','interests','goals'].map(id=>document.getElementById(id).value.toLowerCase()).join(' ');const terms={'AI Engineer':['python','ai','ml','machine learning','model'],'Product Manager':['product','strategy','research','roadmap','user'],'Data Analyst':['data','sql','analysis','dashboard','insight'],'Frontend Engineer':['ui','ux','javascript','react','web','design'],'Backend Engineer':['api','database','backend','server','system']};const scores=Object.entries(terms).map(([role,keywords])=>[role,keywords.reduce((n,word)=>n+(text.includes(word)?1:0),0)]).sort((a,b)=>b[1]-a[1]);const role=scores[0][1]?scores[0][0]:'Product Manager';const result=document.getElementById('result');result.replaceChildren();const heading=document.createElement('h2');heading.textContent=`Suggested direction: ${role}`;result.append(heading);const rationale=document.createElement('p');rationale.textContent=`This starter suggestion matched ${scores[0][1]} keyword${scores[0][1]===1?'':'s'} in your responses. Use it as a prompt for exploration, not a definitive assessment.`;result.append(rationale);const list=document.createElement('ol');plans[role].forEach(step=>{const item=document.createElement('li');item.textContent=step;list.append(item)});result.append(list);});
+  </script>
+</body>
+</html>
